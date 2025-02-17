@@ -3,6 +3,8 @@
 import { useState, useEffect, FormEventHandler, useCallback } from "react";
 import { addTask, removeTask, updateTask, getAllTasks } from "./services/todo-service";
 import { FaTrashCan } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
   const [tasks, setTasks] = useState<ToDo[]>([]);
@@ -16,29 +18,43 @@ export default function Home() {
   const handleSubmit: FormEventHandler = async e => {
     e.preventDefault();
 
-    if (!taskInput.trim()) {
-      return;
+    const taskTrimmed = taskInput.trim().toLowerCase();
+
+    if (!taskTrimmed) {
+      return toast.warn("A tarefa não pode estar vazia!");
     }
 
-    const newTask = await addTask(taskInput);
+    if (tasks.some(task => task.task.toLowerCase() === taskTrimmed)) {
+      return toast.warn("Já existe uma tarefa com esse nome!");
+    }
 
-    if (newTask) {
+    try {
+      const newTask = await addTask(taskInput);
       setTasks([...tasks, newTask]);
       setTaskInput("");
+      toast.success("Tarefa adicionada com sucesso!");
+    } catch (error) {
+      toast.error(String(error));
     }
   };
 
   const handleEdit = async (todoId: string, done: boolean) => {
-    const updatedTask = await updateTask(todoId, !done);
-    if (updatedTask) {
+    try {
+      await updateTask(todoId, !done);
       setTasks(tasks.map(task => (task.id === todoId ? { ...task, done: !task.done } : task)));
+      toast.success("Tarefa atualizada com sucesso!");
+    } catch (error) {
+      toast.error(String(error));
     }
   };
 
   const handleDelete = async (todoId: string) => {
-    const result = await removeTask(todoId);
-    if (result) {
+    try {
+      await removeTask(todoId);
       setTasks(tasks.filter(task => task.id !== todoId));
+      toast.success("Tarefa removida com sucesso!");
+    } catch (error) {
+      toast.error(String(error));
     }
   };
 
@@ -80,6 +96,7 @@ export default function Home() {
           ))}
         </ul>
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
     </div>
   );
 }
