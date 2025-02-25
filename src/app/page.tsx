@@ -88,7 +88,7 @@ export default function Home() {
               <input type="checkbox" checked={task.done} onChange={() => handleEdit(task.id, task.done ?? false)} />
               <span className={task.done ? "line-through" : ""}>{task.task}</span>
               <div className="flex space-x-4 pr-2">
-                <button onClick={() => handleDelete(task.id)}>
+                <button title="Delete ToDo" onClick={() => handleDelete(task.id)}>
                   <FaTrashCan className="h-4 w-4 text-gray-800 hover:text-red-600" />
                 </button>
               </div>
