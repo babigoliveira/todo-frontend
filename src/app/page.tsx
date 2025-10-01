@@ -40,8 +40,8 @@ export default function Home() {
 
   const handleEdit = async (todoId: string, done: boolean) => {
     try {
-      await updateTask(todoId, !done);
-      setTasks(tasks.map(task => (task.id === todoId ? { ...task, done: !task.done } : task)));
+      const updatedTask = await updateTask(todoId, !done);
+      setTasks(prevTasks => prevTasks.map(task => (task.id === todoId ? updatedTask : task)));
       toast.success("Tarefa atualizada com sucesso!");
     } catch (error) {
       toast.error(String(error));
@@ -85,7 +85,7 @@ export default function Home() {
               key={task.id}
               className="border rounded pl-2 py-2 mb-2 bg-gray-300 text-gray-800 flex justify-between items-center"
             >
-              <input type="checkbox" checked={task.done} onChange={() => handleEdit(task.id, task.done ?? false)} />
+              <input type="checkbox" checked={task.done} onChange={() => handleEdit(task.id, task.done)} />
               <span className={task.done ? "line-through" : ""}>{task.task}</span>
               <div className="flex space-x-4 pr-2">
                 <button title="Delete ToDo" onClick={() => handleDelete(task.id)}>

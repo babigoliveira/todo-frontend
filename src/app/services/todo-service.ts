@@ -1,45 +1,83 @@
+import { TokenManager } from "./get-token";
+
 const API_URL = "http://localhost:33333/todo";
 
-const getAllTasks = async (): Promise<ToDo[]> => {
+const tokenManager = new TokenManager();
+
+export type ToDo = {
+  id: string;
+  task: string;
+  done: boolean;
+};
+
+const getHeaders = async () => ({
+  Authorization: `Bearer ${await tokenManager.getToken()}`,
+  "Content-Type": "application/json"
+});
+
+const makeRequest = async (fn: () => Promise<Response>, errorMsg: string, parseBody = true): Promise<any> => {
   try {
-    const response = await fetch(API_URL);
-    return response.json();
+    const response = await fn();
+
+    if (!response.ok) {
+      throw new Error(errorMsg);
+    }
+
+    if (parseBody) {
+      return response.json();
+    }
   } catch {
-    throw new Error("Erro ao buscar a lista de tarefas.");
+    throw new Error(errorMsg);
   }
+};
+
+const getAllTasks = async (): Promise<ToDo[]> => {
+  const body = await makeRequest(async () => {
+    const headers = await getHeaders();
+    const response = await fetch(API_URL, { headers });
+    return response;
+  }, "Erro ao buscar a lista de tarefas.");
+
+  return body;
 };
 
 const addTask = async (task: string): Promise<ToDo> => {
-  try {
+  const body = await makeRequest(async () => {
+    const headers = await getHeaders();
     const response = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ task, completed: false })
+      headers,
+      body: JSON.stringify({ task, done: false })
     });
-    return response.json();
-  } catch {
-    throw new Error("Erro ao adicionar a tarefa.");
-  }
+    return response;
+  }, "Erro ao adicionar a tarefa.");
+
+  return body;
 };
 
-const updateTask = async (id: string, completed: boolean) => {
-  try {
-    fetch(`${API_URL}/${id}`, {
+const updateTask = async (id: string, done: boolean): Promise<ToDo> => {
+  const body = await makeRequest(async () => {
+    const headers = await getHeaders();
+    const response = await fetch(`${API_URL}/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed })
+      headers,
+      body: JSON.stringify({ done })
     });
-  } catch {
-    throw new Error("Erro ao atualizar a tarefa.");
-  }
+    return response;
+  }, "Erro ao atualizar a tarefa.");
+
+  return body;
 };
 
-const removeTask = async (id: string) => {
-  try {
-    fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  } catch {
-    throw new Error("Erro ao remover a tarefa.");
-  }
+const removeTask = async (id: string): Promise<void> => {
+  await makeRequest(async () => {
+    const headers = await getHeaders();
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+      headers
+    });
+    return response;
+  }, "Erro ao remover a tarefa.", false);
 };
 
 export { getAllTasks, addTask, updateTask, removeTask };
