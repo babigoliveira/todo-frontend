@@ -1,1 +1,1 @@
-declare type ToDo = { id: string, task: string, done: boolean }
+declare type ToDo = { id: string; task: string; done: boolean; flag: "high" | "medium" | "low" };

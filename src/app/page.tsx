@@ -1,27 +1,54 @@
 "use client";
 
-import { useState, useEffect, FormEventHandler, useCallback } from "react";
-import { addTask, removeTask, updateTask, getAllTasks } from "./services/todo-service";
-import { FaTrashCan } from "react-icons/fa6";
+import { useCallback, useEffect, useState } from "react";
+import { Modal } from "./components/Modal";
+import { Background } from "./components/Background";
+import { addTask, getAllTasks, removeTask, updateTask } from "./services/todo-service";
 import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
+import { ActionButton } from "./components/ActionButton";
+import { TaskList } from "./components/TaskList";
+import { Tabs } from "./components/Tabs";
 
 export default function Home() {
+  const [openModal, setOpenModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "done" | "pending">("all");
   const [tasks, setTasks] = useState<ToDo[]>([]);
-  const [taskInput, setTaskInput] = useState("");
+  const [editingTask, setEditingTask] = useState<ToDo | null>(null);
 
   const fetchTasks = useCallback(async () => {
     const response = await getAllTasks();
     setTasks(response);
   }, []);
 
-  const handleSubmit: FormEventHandler = async e => {
-    e.preventDefault();
+  const filteredTasks = tasks.filter(task => {
+    if (activeTab === "done") return task.done;
+    if (activeTab === "pending") return !task.done;
+    return true;
+  });
 
-    const taskTrimmed = taskInput.trim().toLowerCase();
+  const handleSubmit = async (data: { title: string; flag: "high" | "medium" | "low" }) => {
+    const taskTrimmed = data.title.trim().toLowerCase();
 
     if (!taskTrimmed) {
       return toast.warn("A tarefa não pode estar vazia!");
+    }
+
+    if (editingTask) {
+      try {
+        const updatedTask = await updateTask(editingTask.id, {
+          task: data.title,
+          flag: data.flag
+        });
+
+        setTasks(prev => prev.map(t => (t.id === updatedTask.id ? updatedTask : t)));
+        setEditingTask(null);
+        setOpenModal(false);
+        toast.success("Tarefa atualizada com sucesso!");
+        return;
+      } catch (error) {
+        toast.error(String(error));
+        return;
+      }
     }
 
     if (tasks.some(task => task.task.toLowerCase() === taskTrimmed)) {
@@ -29,9 +56,9 @@ export default function Home() {
     }
 
     try {
-      const newTask = await addTask(taskInput);
-      setTasks([...tasks, newTask]);
-      setTaskInput("");
+      const newTask = await addTask(data.title, data.flag);
+      setTasks(prev => [...prev, newTask]);
+      setOpenModal(false);
       toast.success("Tarefa adicionada com sucesso!");
     } catch (error) {
       toast.error(String(error));
@@ -40,7 +67,7 @@ export default function Home() {
 
   const handleEdit = async (todoId: string, done: boolean) => {
     try {
-      const updatedTask = await updateTask(todoId, !done);
+      const updatedTask = await updateTask(todoId, { done: !done });
       setTasks(prevTasks => prevTasks.map(task => (task.id === todoId ? updatedTask : task)));
       toast.success("Tarefa atualizada com sucesso!");
     } catch (error) {
@@ -58,45 +85,40 @@ export default function Home() {
     }
   };
 
+  function handleOpenEdit(id: string) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    setEditingTask(task);
+    setOpenModal(true);
+  }
+
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
   return (
-    <div className="bg-gray-700 min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-128">
-        <h1 className="text-2xl text-gray-700 font-bold text-center mb-6">To Do List</h1>
-        <form onSubmit={handleSubmit} className="mb-4">
-          <input
-            type="text"
-            placeholder="Nova tarefa"
-            value={taskInput}
-            onChange={e => setTaskInput(e.target.value)}
-            className="w-full p-3 pl-6 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-700 text-gray-800"
+    <Background className="bg-white flex justify-center">
+      <div className="w-full max-w-md md:max-w-lg lg:max-w-3xl py-6">
+        <div className="px-4 flex justify-center">
+          <ActionButton text="+ Nova tarefa" onClick={() => setOpenModal(true)} className="w-[250px]" />
+        </div>
+
+        <Tabs active={activeTab} onChange={setActiveTab} />
+
+        <TaskList tasks={filteredTasks} onToggle={handleEdit} onDelete={handleDelete} onEdit={handleOpenEdit} />
+
+        {openModal && (
+          <Modal
+            onClose={() => {
+              setOpenModal(false);
+              setEditingTask(null);
+            }}
+            onSuccess={handleSubmit}
+            initialData={editingTask}
           />
-          <button type="submit" className="w-full p-2 mb-8 bg-gray-700 text-white rounded-lg hover:bg-gray-600">
-            Adicionar tarefa
-          </button>
-        </form>
-        {tasks.length > 0 && <h2 className="text-gray-800 font-bold text-center mb-2">Tarefas:</h2>}
-        <ul>
-          {tasks.map(task => (
-            <li
-              key={task.id}
-              className="border rounded pl-2 py-2 mb-2 bg-gray-300 text-gray-800 flex justify-between items-center"
-            >
-              <input type="checkbox" checked={task.done} onChange={() => handleEdit(task.id, task.done)} />
-              <span className={task.done ? "line-through" : ""}>{task.task}</span>
-              <div className="flex space-x-4 pr-2">
-                <button title="Delete ToDo" onClick={() => handleDelete(task.id)}>
-                  <FaTrashCan className="h-4 w-4 text-gray-800 hover:text-red-600" />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        )}
       </div>
-      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
-    </div>
+    </Background>
   );
 }

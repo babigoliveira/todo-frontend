@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { FaRegEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
-
 import { Background } from "../components/Background";
 import { Card } from "../components/Card";
 import { Header } from "../components/Header";
-import { Input } from "../components/Input";
-import { ActionForm } from "../components/ActionForm";
+import { ActionButton } from "../components/ActionButton";
 import { TextButton } from "../components/TextButton";
 import { SocialAuth } from "../components/SocialAuth";
+import { InputField } from "../components/InputField";
 
 export default function Login() {
   const router = useRouter();
@@ -42,7 +41,7 @@ export default function Login() {
   }
 
   return (
-    <Background color="emerald">
+    <Background className="bg-emerald-500">
       <Card>
         <Header />
 
@@ -52,20 +51,22 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
+          <InputField
             type="email"
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             icon={<FaRegEnvelope />}
+            color="gray"
           />
 
-          <Input
+          <InputField
             type={showPassword ? "text" : "password"}
             placeholder="Senha"
             value={password}
             onChange={e => setPassword(e.target.value)}
             icon={<FaLock />}
+            color="gray"
             rightElement={
               <button type="button" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -79,7 +80,7 @@ export default function Login() {
 
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
-          <ActionForm type="submit" text="Entrar" loadingText="Entrando..." loading={loading} />
+          <ActionButton type="submit" text="Entrar" loadingText="Entrando..." loading={loading} className="w-full" />
         </form>
 
         <p className="text-sm text-center mt-4">

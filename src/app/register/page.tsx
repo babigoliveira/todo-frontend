@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaRegEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa6";
-
 import { Background } from "../components/Background";
 import { Card } from "../components/Card";
 import { Header } from "../components/Header";
-import { Input } from "../components/Input";
-import { ActionForm } from "../components/ActionForm";
+import { ActionButton } from "../components/ActionButton";
 import { TextButton } from "../components/TextButton";
+import { InputField } from "../components/InputField";
 
 export default function Register() {
   const router = useRouter();
@@ -49,7 +48,7 @@ export default function Register() {
   }
 
   return (
-    <Background color="emerald">
+    <Background className="bg-emerald-500">
       <Card>
         <Header />
 
@@ -59,38 +58,36 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
+          <InputField
             type="email"
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             icon={<FaRegEnvelope />}
+            color="gray"
           />
 
-          <Input
+          <InputField
             type={showPassword ? "text" : "password"}
             placeholder="Senha (mín. 6 caracteres)"
             value={password}
             onChange={e => setPassword(e.target.value)}
             icon={<FaLock />}
-            rightElement={
-              <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            }
+            color="gray"
           />
 
-          <Input
+          <InputField
             type={showPassword ? "text" : "password"}
             placeholder="Confirmar senha"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             icon={<FaLock />}
+            color="gray"
           />
 
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
-          <ActionForm type="submit" text="Criar conta" loadingText="Criando conta..." loading={loading} />
+          <ActionButton type="submit" text="Criar conta" loadingText="Criando conta..." loading={loading} className="w-full"/>
         </form>
 
         <p className="text-sm text-center mt-4">

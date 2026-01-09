@@ -8,6 +8,7 @@ export type ToDo = {
   id: string;
   task: string;
   done: boolean;
+  flag: "high" | "medium" | "low";
 };
 
 const getHeaders = async () => ({
@@ -41,13 +42,13 @@ const getAllTasks = async (): Promise<ToDo[]> => {
   return body;
 };
 
-const addTask = async (task: string): Promise<ToDo> => {
+const addTask = async (task: string, flag: "high" | "medium" | "low"): Promise<ToDo> => {
   const body = await makeRequest(async () => {
     const headers = await getHeaders();
     const response = await fetch(API_URL, {
       method: "POST",
       headers,
-      body: JSON.stringify({ task, done: false })
+      body: JSON.stringify({ task, done: false, flag })
     });
     return response;
   }, "Erro ao adicionar a tarefa.");
@@ -55,13 +56,24 @@ const addTask = async (task: string): Promise<ToDo> => {
   return body;
 };
 
-const updateTask = async (id: string, done: boolean): Promise<ToDo> => {
+const updateTask = async (
+  id: string,
+  {
+    done,
+    task,
+    flag
+  }: {
+    done?: boolean;
+    task?: string;
+    flag?: "high" | "medium" | "low";
+  }
+): Promise<ToDo> => {
   const body = await makeRequest(async () => {
     const headers = await getHeaders();
     const response = await fetch(`${API_URL}/${id}`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify({ done })
+      body: JSON.stringify({ done , task, flag })
     });
     return response;
   }, "Erro ao atualizar a tarefa.");
@@ -70,14 +82,18 @@ const updateTask = async (id: string, done: boolean): Promise<ToDo> => {
 };
 
 const removeTask = async (id: string): Promise<void> => {
-  await makeRequest(async () => {
-    const headers = await getHeaders();
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-      headers
-    });
-    return response;
-  }, "Erro ao remover a tarefa.", false);
+  await makeRequest(
+    async () => {
+      const headers = await getHeaders();
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers
+      });
+      return response;
+    },
+    "Erro ao remover a tarefa.",
+    false
+  );
 };
 
 export { getAllTasks, addTask, updateTask, removeTask };

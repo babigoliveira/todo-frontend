@@ -1,7 +1,7 @@
 import React from "react";
 
-export type ActionFormProps = {
-  type?: "button" | "submit" | "reset";
+export type ActionButtonProps = {
+  type?: "button" | "submit";
   text: string;
   loadingText?: string;
   loading?: boolean;
@@ -11,7 +11,7 @@ export type ActionFormProps = {
   variant?: "primary" | "secondary" | "danger";
 };
 
-export function ActionForm({
+export function ActionButton({
   text,
   loadingText,
   loading = false,
@@ -20,15 +20,15 @@ export function ActionForm({
   disabled = false,
   className,
   variant = "primary"
-}: ActionFormProps) {
+}: ActionButtonProps) {
   const buttonText = loading && loadingText ? loadingText : text;
 
   const baseClasses =
-    "w-full mt-2 rounded-lg py-2.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
+    "mt-2 rounded-lg py-2.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantClasses = {
     primary: "bg-emerald-600 text-white hover:bg-emerald-700",
-    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
+    secondary: "bg-gray-500 text-white border hover:bg-gray-600",
     danger: "bg-red-600 text-white hover:bg-red-700"
   };
 
