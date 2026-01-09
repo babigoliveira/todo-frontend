@@ -7,11 +7,12 @@ import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import { Background } from "../components/Background";
 import { Card } from "../components/Card";
-import { Header } from "../components/Header";
+import { LogoPublic } from "../components/LogoPublic";
 import { ActionButton } from "../components/ActionButton";
 import { TextButton } from "../components/TextButton";
 import { SocialAuth } from "../components/SocialAuth";
 import { InputField } from "../components/InputField";
+import { Footer } from "../components/Footer";
 
 export default function Login() {
   const router = useRouter();
@@ -41,69 +42,72 @@ export default function Login() {
   }
 
   return (
-    <Background className="bg-emerald-500">
-      <Card>
-        <Header />
+    <Background className="bg-emerald-500 flex flex-col">
+      <main className="flex-1 flex items-center justify-center">
+        <Card>
+          <LogoPublic />
 
-        <div className="text-center mb-8">
-          <h1 className="text-xl font-semibold">Bem-vindo</h1>
-          <p className="text-sm text-gray-500">Organize suas tarefas em um só lugar</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            icon={<FaRegEnvelope />}
-            color="gray"
-          />
-
-          <InputField
-            type={showPassword ? "text" : "password"}
-            placeholder="Senha"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            icon={<FaLock />}
-            color="gray"
-            rightElement={
-              <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <FaEye /> : <FaEyeSlash />}
-              </button>
-            }
-          />
-
-          <div className="text-right">
-            <TextButton onClick={() => router.push("/forgot-password")}>Esqueceu a senha?</TextButton>
+          <div className="text-center mb-8">
+            <h1 className="text-xl font-semibold">Bem-vindo</h1>
+            <p className="text-sm text-gray-500">Organize suas tarefas em um só lugar</p>
           </div>
 
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <InputField
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              icon={<FaRegEnvelope />}
+              color="gray"
+            />
 
-          <ActionButton type="submit" text="Entrar" loadingText="Entrando..." loading={loading} className="w-full" />
-        </form>
+            <InputField
+              type={showPassword ? "text" : "password"}
+              placeholder="Senha"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              icon={<FaLock />}
+              color="gray"
+              rightElement={
+                <button type="button" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <FaEye /> : <FaEyeSlash />}
+                </button>
+              }
+            />
 
-        <p className="text-sm text-center mt-4">
-          Não tem uma conta? <TextButton onClick={() => router.push("/register")}>Criar conta</TextButton>
-        </p>
+            <div className="text-right">
+              <TextButton onClick={() => router.push("/forgot-password")}>Esqueceu a senha?</TextButton>
+            </div>
 
-        <SocialAuth
-          title="Entrar com"
-          providers={[
-            { name: "Google", icon: <FcGoogle size={24} />, onClick: () => {} },
-            {
-              name: "Apple",
-              icon: <Image src="/images/apple.svg" alt="Apple" width={24} height={24} />,
-              onClick: () => {}
-            },
-            {
-              name: "Microsoft",
-              icon: <Image src="/images/microsoft.svg" alt="Microsoft" width={24} height={24} />,
-              onClick: () => {}
-            }
-          ]}
-        />
-      </Card>
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
+            <ActionButton type="submit" text="Entrar" loadingText="Entrando..." loading={loading} className="w-full" />
+          </form>
+
+          <p className="text-sm text-center mt-4">
+            Não tem uma conta? <TextButton onClick={() => router.push("/register")}>Criar conta</TextButton>
+          </p>
+
+          <SocialAuth
+            title="Entrar com"
+            providers={[
+              { name: "Google", icon: <FcGoogle size={24} />, onClick: () => {} },
+              {
+                name: "Apple",
+                icon: <Image src="/images/apple.svg" alt="Apple" width={24} height={24} />,
+                onClick: () => {}
+              },
+              {
+                name: "Microsoft",
+                icon: <Image src="/images/microsoft.svg" alt="Microsoft" width={24} height={24} />,
+                onClick: () => {}
+              }
+            ]}
+          />
+        </Card>
+      </main>
+      <Footer />
     </Background>
   );
 }

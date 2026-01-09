@@ -4,9 +4,5 @@ type BackgroundProps = {
 };
 
 export function Background({ children, className }: BackgroundProps) {
-  return (
-    <div className={`min-h-screen flex items-center justify-center text-gray-600 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`min-h-screen flex justify-center items-center text-gray-600 ${className}`}>{children}</div>;
 }

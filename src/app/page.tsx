@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { ActionButton } from "./components/ActionButton";
 import { TaskList } from "./components/TaskList";
 import { Tabs } from "./components/Tabs";
+import { Header } from "./components/Header";
 
 export default function Home() {
   const [openModal, setOpenModal] = useState(false);
@@ -20,11 +21,19 @@ export default function Home() {
     setTasks(response);
   }, []);
 
-  const filteredTasks = tasks.filter(task => {
-    if (activeTab === "done") return task.done;
-    if (activeTab === "pending") return !task.done;
-    return true;
-  });
+  const flagPriority = {
+    high: 1,
+    medium: 2,
+    low: 3
+  } as const;
+
+  const filterAnsSortTasks = tasks
+    .filter(task => {
+      if (activeTab === "done") return task.done;
+      if (activeTab === "pending") return !task.done;
+      return true;
+    })
+    .sort((a, b) => flagPriority[a.flag] - flagPriority[b.flag]);
 
   const handleSubmit = async (data: { title: string; flag: "high" | "medium" | "low" }) => {
     const taskTrimmed = data.title.trim().toLowerCase();
@@ -98,15 +107,16 @@ export default function Home() {
   }, [fetchTasks]);
 
   return (
-    <Background className="bg-white flex justify-center">
-      <div className="w-full max-w-md md:max-w-lg lg:max-w-3xl py-6">
-        <div className="px-4 flex justify-center">
+    <div>
+      <Header />
+      <main className="mx-auto w-full max-w-md md:max-w-lg lg:max-w-3xl py-6 align-items-start">
+        <div className="px-4 pt-6 pb-4 flex justify-center">
           <ActionButton text="+ Nova tarefa" onClick={() => setOpenModal(true)} className="w-[250px]" />
         </div>
 
         <Tabs active={activeTab} onChange={setActiveTab} />
 
-        <TaskList tasks={filteredTasks} onToggle={handleEdit} onDelete={handleDelete} onEdit={handleOpenEdit} />
+        <TaskList tasks={filterAnsSortTasks} onToggle={handleEdit} onDelete={handleDelete} onEdit={handleOpenEdit} />
 
         {openModal && (
           <Modal
@@ -118,7 +128,7 @@ export default function Home() {
             initialData={editingTask}
           />
         )}
-      </div>
-    </Background>
+      </main>
+    </div>
   );
 }
