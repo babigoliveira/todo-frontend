@@ -5,6 +5,7 @@ type InputFieldProps = {
   icon?: React.ReactNode;
   rightElement?: React.ReactNode;
   className?: string;
+  autoComplete?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export function InputField({ icon, rightElement, className, ...props }: InputFieldProps) {

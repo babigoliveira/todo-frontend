@@ -12,12 +12,12 @@ type ModalProps = {
   onClose: () => void;
   onSuccess: (data: { title: string; flag: "high" | "medium" | "low" }) => void;
   initialData?: ToDo | null;
+  loading: boolean;
 };
 
-export function Modal({ onClose, onSuccess, initialData }: ModalProps) {
+export function Modal({ onClose, onSuccess, initialData, loading }: ModalProps) {
   const [title, setTitle] = useState("");
   const [flag, setFlag] = useState<"" | "high" | "medium" | "low">("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
@@ -73,14 +73,14 @@ export function Modal({ onClose, onSuccess, initialData }: ModalProps) {
               type="button"
               text="Voltar"
               loadingText="Voltando..."
-              variant="secondary"
+              color="secondary"
               className="md:w-[150px]"
               onClick={onClose}
             />
             <ActionButton
               type="submit"
               text={initialData ? "Atualizar" : "Salvar"}
-              loadingText="Salvando..."
+              loadingText={initialData ? "Atualizando..." : "Salvando..."}
               loading={loading}
               className="md:w-[150px]"
             />

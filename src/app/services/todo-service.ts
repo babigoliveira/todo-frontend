@@ -1,8 +1,5 @@
-import { TokenManager } from "./get-token";
-
 const API_URL = "http://localhost:33333/todo";
-
-const tokenManager = new TokenManager();
+const BASE_URL = "http://localhost:33333";
 
 export type ToDo = {
   id: string;
@@ -11,89 +8,120 @@ export type ToDo = {
   flag: "high" | "medium" | "low";
 };
 
-const getHeaders = async () => ({
-  Authorization: `Bearer ${await tokenManager.getToken()}`,
-  "Content-Type": "application/json"
-});
+type RegisterResponse = {
+  user: {
+    id: string;
+    full_name: string;
+    email: string;
+    role: string;
+  };
+};
 
-const makeRequest = async (fn: () => Promise<Response>, errorMsg: string, parseBody = true): Promise<any> => {
-  try {
-    const response = await fn();
+type MeResponse = {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+};
 
-    if (!response.ok) {
-      throw new Error(errorMsg);
-    }
+const makeRequest = async (fn: () => Promise<Response>, errorMsg: string, parseBody = true) => {
+  const response = await fn();
 
-    if (parseBody) {
-      return response.json();
-    }
-  } catch {
-    throw new Error(errorMsg);
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`${errorMsg} (status ${response.status}) ${text}`);
   }
+
+  if (parseBody) return response.json();
+};
+
+const register = async (full_name: string, email: string, password: string): Promise<RegisterResponse> => {
+  return await makeRequest(async () => {
+    return await fetch(`${BASE_URL}/auth/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ full_name, email, password })
+    });
+  }, "Erro ao criar conta.");
+};
+
+const login = async (email: string, password: string): Promise<void> => {
+  await makeRequest(async () => {
+    return fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+  }, "Erro ao fazer o login.");
+};
+
+const me = async (): Promise<MeResponse> => {
+  return makeRequest(async () => {
+    return fetch(`${BASE_URL}/auth/me`, {
+      credentials: "include"
+    });
+  }, "Não autenticado");
 };
 
 const getAllTasks = async (): Promise<ToDo[]> => {
-  const body = await makeRequest(async () => {
-    const headers = await getHeaders();
-    const response = await fetch(API_URL, { headers });
-    return response;
+  return await makeRequest(async () => {
+    return fetch(API_URL, {
+      credentials: "include"
+    });
   }, "Erro ao buscar a lista de tarefas.");
-
-  return body;
 };
 
 const addTask = async (task: string, flag: "high" | "medium" | "low"): Promise<ToDo> => {
-  const body = await makeRequest(async () => {
-    const headers = await getHeaders();
-    const response = await fetch(API_URL, {
+  return makeRequest(async () => {
+    return fetch(API_URL, {
       method: "POST",
-      headers,
-      body: JSON.stringify({ task, done: false, flag })
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task, flag })
     });
-    return response;
   }, "Erro ao adicionar a tarefa.");
-
-  return body;
 };
 
 const updateTask = async (
   id: string,
-  {
-    done,
-    task,
-    flag
-  }: {
-    done?: boolean;
-    task?: string;
-    flag?: "high" | "medium" | "low";
-  }
+  data: { done?: boolean; task?: string; flag?: "high" | "medium" | "low" }
 ): Promise<ToDo> => {
-  const body = await makeRequest(async () => {
-    const headers = await getHeaders();
-    const response = await fetch(`${API_URL}/${id}`, {
+  return makeRequest(async () => {
+    return fetch(`${API_URL}/${id}`, {
       method: "PATCH",
-      headers,
-      body: JSON.stringify({ done , task, flag })
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
-    return response;
   }, "Erro ao atualizar a tarefa.");
-
-  return body;
 };
 
 const removeTask = async (id: string): Promise<void> => {
   await makeRequest(
     async () => {
-      const headers = await getHeaders();
-      const response = await fetch(`${API_URL}/${id}`, {
+      return fetch(`${API_URL}/${id}`, {
         method: "DELETE",
-        headers
+        credentials: "include"
       });
-      return response;
     },
     "Erro ao remover a tarefa.",
     false
   );
 };
 
-export { getAllTasks, addTask, updateTask, removeTask };
+const logout = async (): Promise<void> => {
+  await makeRequest(
+    async () => {
+      return fetch(`${BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include"
+      });
+    },
+    "Erro ao fazer logout",
+    false
+  );
+};
+
+export { register, login, me, getAllTasks, addTask, updateTask, removeTask, logout };

@@ -11,6 +11,7 @@ import { TextButton } from "../components/TextButton";
 import { InputField } from "../components/InputField";
 import { Footer } from "../components/Footer";
 import { RxAvatar } from "react-icons/rx";
+import { register } from "../services/todo-service";
 
 export default function Register() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
@@ -39,15 +40,17 @@ export default function Register() {
       setError("As senhas não coincidem.");
       return;
     }
+    try {
+      setError("");
+      setLoading(true);
 
-    setError("");
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
+      await register(name, email, password);
       router.push("/login");
-    }, 1200);
-  }
+    } catch (err: any) {
+      setError(err.message || "Erro ao criar conta.");
+      setLoading(false);
+    }
+  };
 
   return (
     <Background className="bg-emerald-500 flex flex-col">
@@ -86,6 +89,7 @@ export default function Register() {
               onChange={e => setPassword(e.target.value)}
               icon={<FaLock />}
               color="gray"
+              autoComplete="on"
             />
 
             <InputField
@@ -95,6 +99,7 @@ export default function Register() {
               onChange={e => setConfirmPassword(e.target.value)}
               icon={<FaLock />}
               color="gray"
+              autoComplete="on"
             />
 
             {error && <p className="text-sm text-red-600 text-center">{error}</p>}
@@ -109,7 +114,10 @@ export default function Register() {
           </form>
 
           <p className="text-sm text-center mt-4">
-            Já tem uma conta? <TextButton onClick={() => router.push("/login")}>Entrar</TextButton>
+            Já tem uma conta?
+            <TextButton color="secondary" onClick={() => router.push("/login")}>
+              Entrar
+            </TextButton>
           </p>
         </Card>
       </main>

@@ -2,19 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Modal } from "./components/Modal";
-import { Background } from "./components/Background";
 import { addTask, getAllTasks, removeTask, updateTask } from "./services/todo-service";
 import { toast } from "react-toastify";
 import { ActionButton } from "./components/ActionButton";
 import { TaskList } from "./components/TaskList";
 import { Tabs } from "./components/Tabs";
 import { Header } from "./components/Header";
+import { me } from "./services/todo-service";
 
 export default function Home() {
   const [openModal, setOpenModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "done" | "pending">("all");
   const [tasks, setTasks] = useState<ToDo[]>([]);
   const [editingTask, setEditingTask] = useState<ToDo | null>(null);
+  const [userName, setUserName] = useState<string>("");
 
   const fetchTasks = useCallback(async () => {
     const response = await getAllTasks();
@@ -42,6 +44,8 @@ export default function Home() {
       return toast.warn("A tarefa não pode estar vazia!");
     }
 
+    setModalLoading(true);
+
     if (editingTask) {
       try {
         const updatedTask = await updateTask(editingTask.id, {
@@ -56,7 +60,8 @@ export default function Home() {
         return;
       } catch (error) {
         toast.error(String(error));
-        return;
+      } finally {
+        setModalLoading(false);
       }
     }
 
@@ -103,12 +108,23 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchTasks();
+    const load = async () => {
+      try {
+        const user = await me();
+        setUserName(user.full_name);
+
+        await fetchTasks();
+      } catch {
+        window.location.href = "/login";
+      }
+    };
+
+    load();
   }, [fetchTasks]);
 
   return (
     <div>
-      <Header />
+      <Header userName={userName} />
       <main className="mx-auto w-full max-w-md md:max-w-lg lg:max-w-3xl py-6 align-items-start">
         <div className="px-4 pt-6 pb-4 flex justify-center">
           <ActionButton text="+ Nova tarefa" onClick={() => setOpenModal(true)} className="w-[250px]" />
@@ -126,6 +142,7 @@ export default function Home() {
             }}
             onSuccess={handleSubmit}
             initialData={editingTask}
+            loading={modalLoading}
           />
         )}
       </main>

@@ -8,7 +8,7 @@ export type ActionButtonProps = {
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
-  variant?: "primary" | "secondary" | "danger";
+  color?: "primary" | "secondary" | "danger";
 };
 
 export function ActionButton({
@@ -19,14 +19,13 @@ export function ActionButton({
   onClick,
   disabled = false,
   className,
-  variant = "primary"
+  color = "primary"
 }: ActionButtonProps) {
   const buttonText = loading && loadingText ? loadingText : text;
 
-  const baseClasses =
-    "mt-2 rounded-lg py-2.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseClasses = "mt-2 rounded-lg py-2.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
 
-  const variantClasses = {
+  const variantColor = {
     primary: "bg-emerald-600 text-white hover:bg-emerald-700",
     secondary: "bg-gray-500 text-white border hover:bg-gray-600",
     danger: "bg-red-600 text-white hover:bg-red-700"
@@ -37,7 +36,7 @@ export function ActionButton({
       type={type}
       disabled={loading || disabled}
       onClick={onClick}
-      className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+      className={`${baseClasses} ${variantColor[color]} ${className}`}
     >
       {buttonText}
     </button>

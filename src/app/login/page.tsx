@@ -13,6 +13,7 @@ import { TextButton } from "../components/TextButton";
 import { SocialAuth } from "../components/SocialAuth";
 import { InputField } from "../components/InputField";
 import { Footer } from "../components/Footer";
+import { login } from "../services/todo-service";
 
 export default function Login() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -31,15 +32,18 @@ export default function Login() {
       return;
     }
 
-    setError("");
-    setLoading(true);
+    try {
+      setLoading(true);
+      setError("");
 
-    // Mock de login
-    setTimeout(() => {
+      await login(email, password);
+
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message || "Email ou senha inválidos");
       setLoading(false);
-      router.push("/home");
-    }, 1200);
-  }
+    }
+  };
 
   return (
     <Background className="bg-emerald-500 flex flex-col">
@@ -69,6 +73,7 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               icon={<FaLock />}
               color="gray"
+              autoComplete="off"
               rightElement={
                 <button type="button" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -76,8 +81,10 @@ export default function Login() {
               }
             />
 
-            <div className="text-right">
-              <TextButton onClick={() => router.push("/forgot-password")}>Esqueceu a senha?</TextButton>
+            <div className="text-right text-sm">
+              <TextButton color="secondary" onClick={() => router.push("/forgot-password")}>
+                Esqueceu a senha?
+              </TextButton>
             </div>
 
             {error && <p className="text-sm text-red-600 text-center">{error}</p>}
@@ -86,7 +93,10 @@ export default function Login() {
           </form>
 
           <p className="text-sm text-center mt-4">
-            Não tem uma conta? <TextButton onClick={() => router.push("/register")}>Criar conta</TextButton>
+            Não tem uma conta?{" "}
+            <TextButton color="secondary" onClick={() => router.push("/register")}>
+              Criar conta
+            </TextButton>
           </p>
 
           <SocialAuth
