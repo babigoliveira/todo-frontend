@@ -9,18 +9,18 @@ type UserMenuProps = {
 
 function getInitials(name?: string) {
   const safe = (name ?? "").trim();
-  if (!safe) return "??";
+  if (!safe) return "?";
 
   const parts = safe.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "??";
+  if (parts.length === 0) return "?";
 
   const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts.at(-1)?.[0] ?? "" : "";
+  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "";
 
   return (first + last).toUpperCase();
 }
 
-export function UserMenu({ userName = "John Smith", userAvatarUrl }: UserMenuProps) {
+export function UserMenu({ userName, userAvatarUrl }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const initials = getInitials(userName);

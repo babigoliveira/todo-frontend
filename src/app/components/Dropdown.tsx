@@ -2,8 +2,8 @@ import { FaLock } from "react-icons/fa";
 import { TextButton } from "./TextButton";
 import { RxAvatar } from "react-icons/rx";
 import { FiLogOut } from "react-icons/fi";
-import { logout } from "../services/todo-service";
 import { useRouter } from "next/navigation";
+import { logout } from "../services/auth.service";
 
 export function Dropdown() {
   const router = useRouter();

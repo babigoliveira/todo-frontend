@@ -1,6 +1,7 @@
 import { FiEdit2 } from "react-icons/fi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Flag } from "./Flag";
+import type { ToDo } from "../types/todo";
 
 type TaskRowProps = {
   task: ToDo;

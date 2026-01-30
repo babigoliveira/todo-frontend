@@ -13,7 +13,7 @@ import { TextButton } from "../components/TextButton";
 import { SocialAuth } from "../components/SocialAuth";
 import { InputField } from "../components/InputField";
 import { Footer } from "../components/Footer";
-import { login } from "../services/todo-service";
+import { login } from "../services/auth.service";
 
 export default function Login() {
   const router = useRouter();

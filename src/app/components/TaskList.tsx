@@ -1,4 +1,5 @@
 import { TaskRow } from "./TaskRow";
+import type { ToDo } from "../types/todo";
 
 type TaskListProps = {
   tasks: ToDo[];

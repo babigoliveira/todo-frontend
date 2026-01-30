@@ -1,4 +1,4 @@
-type TabKey = "all" | "done" | "pending";
+type TabKey = "pending" | "done" | "all";
 
 type TabsProps = {
   active: TabKey;
@@ -7,9 +7,9 @@ type TabsProps = {
 
 export function Tabs({ active, onChange }: TabsProps) {
   const tabs: { key: TabKey; label: string }[] = [
-    { key: "all", label: "Todas" },
+    { key: "pending", label: "Pendentes" },
     { key: "done", label: "Concluídas" },
-    { key: "pending", label: "Pendentes" }
+    { key: "all", label: "Todas" }
   ];
 
   return (

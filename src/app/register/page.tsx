@@ -11,7 +11,7 @@ import { TextButton } from "../components/TextButton";
 import { InputField } from "../components/InputField";
 import { Footer } from "../components/Footer";
 import { RxAvatar } from "react-icons/rx";
-import { register } from "../services/todo-service";
+import { register } from "../services/auth.service";
 
 export default function Register() {
   const router = useRouter();

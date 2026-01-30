@@ -7,6 +7,7 @@ import { ActionButton } from "./ActionButton";
 import { useEffect, useState } from "react";
 import { Background } from "./Background";
 import { Select } from "./Select";
+import { ToDo } from "../types/todo";
 
 type ModalProps = {
   onClose: () => void;
@@ -45,7 +46,7 @@ export function Modal({ onClose, onSuccess, initialData, loading }: ModalProps) 
     <Background className="fixed inset-0 bg-black/40 backdrop-blur-sm">
       <Card>
         <div className="flex justify-between mb-6">
-          <h2 className="text-2xl text-gray-500">Nova tarefa</h2>
+          <h2 className="text-2xl text-gray-500">{initialData ? "Editar tarefa" : "Nova tarefa"}</h2>
           <button type="button" aria-label="Fechar modal" onClick={onClose}>
             <RxCross2 size={24} className="text-gray-400" />
           </button>
