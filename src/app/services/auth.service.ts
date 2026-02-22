@@ -15,10 +15,7 @@ export const login = async (email: string, password: string): Promise<void> => {
   });
 };
 
-export const me = async (): Promise<User> => {
-  return api<User>("/auth/me");
-};
-
 export const logout = async (): Promise<void> => {
   await api<void>("/auth/logout", { method: "POST" });
 };
+
